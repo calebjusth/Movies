@@ -61,7 +61,7 @@ Your users can:
 
 - 🧩 **TMDB API** – For movie and show data  
 - 📺 **Vidsrc API** – For streamable content  
-- 💻 **HTML / CSS / JS / Django / React** *(or whatever stack you used)*  
+- 💻 **HTML / CSS / JS / Django / 
 - ⚙️ Backend-auth & session management
 
 ---
