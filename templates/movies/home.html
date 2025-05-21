@@ -1,0 +1,268 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="hero">
+    {% for content in hero_content %}
+    <!-- Slide {{ forloop.counter }} -->
+    <div class="hero-slide {% if forloop.first %}active{% endif %}" 
+         style="background-image: url('{{ content.backdrop_path }}');">
+        <div class="hero-content">
+            <h1 class="hero-title">{{ content.title }}</h1>
+            <div class="hero-meta">
+                <span class="rating"><i class="fas fa-star"></i> {{ content.vote_average }}/10</span>
+                <span><i class="fas fa-calendar-alt"></i> {{ content.release_date|slice:":4" }}</span>
+                {% if content.content_type == 'movie' %}
+                    <span><i class="fas fa-clock"></i> {{ content.runtime }}</span>
+                {% endif %}
+                <span><i class="fas fa-tag"></i> {{ content.genres|join:", " }}</span>
+            </div>
+            <p class="hero-description">
+                {{ content.overview|truncatechars:250 }}
+            </p>
+            <div class="hero-buttons">
+                <a href="{% if content.content_type == 'movie' %}{% url 'watch_movie' content.id %}{% else %}{% url 'watch_tv' content.id %}{% endif %}" 
+                   class="btn-play">
+                    <i class="fas fa-play"></i> Play Now
+                </a>
+                <button class="btn-more" data-id="{{ content.id }}" data-type="{{ content.content_type }}">
+                    <i class="fas fa-info-circle"></i> More Info
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    <!-- Slide Indicators -->
+    <div class="slide-indicators">
+        {% for content in hero_content %}
+        <div class="indicator {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.counter0 }}"></div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Modal for More Info -->
+<div id="moreInfoModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>More Like This</h3>
+        <div class="similar-content">
+            <!-- Content will be loaded here by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('moreInfoModal');
+    const similarContent = document.querySelector('.similar-content');
+    
+    // More Info button functionality
+    document.querySelectorAll('.btn-more').forEach(button => {
+        button.addEventListener('click', function() {
+            const contentId = this.dataset.id;
+            const contentType = this.dataset.type;
+            
+            fetch(`/api/similar/${contentId}/${contentType}/`)
+                .then(response => response.json())
+                .then(data => {
+                    similarContent.innerHTML = '';
+                    data.results.slice(0, 6).forEach(item => {
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'similar-item';
+                        itemElement.innerHTML = `
+                            <img src="https://image.tmdb.org/t/p/w200${item.poster_path}" alt="${item.title || item.name}">
+                            <h4>${item.title || item.name}</h4>
+                            <a href="/watch/${contentType === 'movie' ? 'movie' : 'tv'}/${item.id}/" class="btn-play">
+                                <i class="fas fa-play"></i> Play
+                            </a>
+                        `;
+                        similarContent.appendChild(itemElement);
+                    });
+                    modal.style.display = 'block';
+                });
+        });
+    });
+    
+    // Close modal
+    document.querySelector('.close-modal').addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    
+    // Close when clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
+</script>
+
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+    background-color: var(--dark-bg);
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 800px;
+    position: relative;
+}
+
+.close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: white;
+}
+
+.similar-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.similar-item {
+    background-color: var(--dark-secondary);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.similar-item img {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.similar-item h4 {
+    font-size: 14px;
+    margin: 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>
+
+
+
+<section class="trending-section">
+    <div class="section-header">
+        <h2 class="section-title">Trending Now</h2>
+        <a href="#" class="view-all">View All <i class="fas fa-chevron-right"></i></a>
+    </div>
+    
+    <div class="trending-container">
+        <!-- Card 1 -->
+        {% for movie in movies %}
+<div class="trending-card">
+    <div class="card-badge">Trending</div>
+    <div class="card-image">
+        {% if movie.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+        {% else %}
+            <div class="no-poster">No poster available</div>
+        {% endif %}
+    </div>
+    <div class="card-content">
+        <h3 class="card-title">{{ movie.title }}</h3>
+        <div class="card-meta">
+            <span>{{ movie.release_date|slice:":4" }}</span>
+            <span class="card-rating"><i class="fas fa-star"></i> {{ movie.vote_average }}</span>
+        </div>
+    </div>
+    <div class="card-hover">
+        <h3 class="hover-title">{{ movie.title }}</h3>
+        <div class="hover-meta">
+            <span>{{ movie.release_date }}</span>
+            {% for genre_id in movie.genre_ids|slice:":2" %}
+                <span>{{ genre_id }}</span>  {# You'll need to map genre IDs to names #}
+            {% endfor %}
+        </div>
+        <p class="hover-description">
+            {{ movie.overview|truncatechars:150 }}
+        </p>
+        <div class="hover-buttons">
+            <a href={% url 'watch_movie' movie.id %} class="hover-btn" title="Play"><i class="fas fa-play"></i></a>
+            <button class="hover-btn" title="Add to list"><i class="fas fa-plus"></i></button>
+            <button class="hover-btn" title="Like"><i class="fas fa-thumbs-up"></i></button>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="no-movies">
+    <p>No trending movies found.</p>
+</div>
+{% endfor %}
+        
+        
+    </div>
+</section>
+
+
+
+<section class="trending-section anime-section">
+    <div class="section-header">
+        <h2 class="section-title">Popular Anime</h2>
+        <a href="#" class="view-all">View All <i class="fas fa-chevron-right"></i></a>
+    </div>
+    
+    <div class="trending-container">
+        {% for anime in anime_series %}
+        <div class="trending-card anime-card">
+            {% if forloop.counter <= 3 %}
+            <div class="card-badge">Top {{ forloop.counter }}</div>
+            {% endif %}
+            <div class="card-image">
+                <img loading="lazy" src="https://image.tmdb.org/t/p/w342{{ anime.poster_path }}" alt="{{ anime.name }}" onerror="this.src='{% static 'images/no-poster.png' %}'">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">{{ anime.name }}</h3>
+                <div class="card-meta">
+                    <span>{{ anime.first_air_date|slice:":4" }}</span>
+                    <span class="card-rating"><i class="fas fa-star"></i> {{ anime.vote_average|floatformat:1 }}</span>
+                </div>
+            </div>
+            <div class="card-hover">
+                <h3 class="hover-title">{{ anime.name }}</h3>
+                <div class="hover-meta">
+                    <span>{{ anime.first_air_date|slice:":4" }}</span>
+                    <span>Anime</span>
+                    <span>{{ anime.genre_names|join:", "|default:"Anime" }}</span>
+                </div>
+                <p class="hover-description">
+                    {{ anime.overview|truncatechars:120 }}
+                </p>
+                <div class="hover-buttons">
+                    <a href="{% url 'watch_tv' anime.id %}" class="hover-btn" title="Play"><i class="fas fa-play"></i></a>
+                    <button class="hover-btn add-to-list" title="Add to list"><i class="fas fa-plus"></i></button>
+                    <button class="hover-btn like-btn" title="Like"><i class="fas fa-thumbs-up"></i></button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+
+
+
+
+{% endblock content %}

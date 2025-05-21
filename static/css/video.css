@@ -1,0 +1,370 @@
+    /* Player Container Styles */
+    .player-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, #0f0f13 0%, #1a1a24 100%);
+    }
+
+    /* Video Player Styles */
+    .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+        overflow: hidden;
+        background: #000;
+        border-radius: 8px;
+    }
+
+    .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    /* Player Controls Overlay */
+    .player-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 10;
+        padding: 1.5rem;
+        pointer-events: none;
+    }
+
+    .player-container:hover .player-overlay {
+        opacity: 1;
+    }
+
+    /* Player Controls */
+    .player-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .control-button {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        pointer-events: all;
+    }
+
+    .control-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+
+    .control-button i {
+        font-size: 1.2rem;
+    }
+
+    .progress-container {
+        flex-grow: 1;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+        overflow: hidden;
+        position: relative;
+        pointer-events: all;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 30%;
+        background: linear-gradient(135deg, #ff4d5a 0%, #8e2de2 100%);
+        border-radius: 3px;
+    }
+
+    /* Movie Info Section */
+    .movie-info {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 1rem;
+    }
+
+    .movie-header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .movie-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+    }
+
+    .movie-meta {
+        display: flex;
+        gap: 1rem;
+        color: #b8b8c5;
+        font-size: 0.9rem;
+    }
+
+    .movie-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .movie-meta i {
+        color: #ffd700;
+    }
+
+    .movie-description {
+        color: #b8b8c5;
+        line-height: 1.6;
+        max-width: 800px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .action-btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        border: none;
+    }
+
+    .primary-btn {
+        background: linear-gradient(135deg, #ff4d5a 0%, #8e2de2 100%);
+        color: white;
+    }
+
+    .secondary-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .player-container {
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .movie-title {
+            font-size: 1.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            justify-content: center;
+        }
+    }
+
+    /* Loading State */
+    .loading-state {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0f0f13;
+        z-index: 20;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        border-top-color: #ff4d5a;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+
+
+    .related-section {
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .movie-card {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+        aspect-ratio: 2/3;
+    }
+    
+    .movie-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    .movie-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    
+    .movie-card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 1rem;
+    }
+    
+    .movie-card:hover .movie-card-overlay {
+        opacity: 1;
+    }
+    
+    .movie-card-title {
+        color: white;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .movie-card-meta {
+        display: flex;
+        gap: 0.5rem;
+        color: #b8b8c5;
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .movie-card-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+    
+    .movie-card-meta i {
+        color: #ffd700;
+        font-size: 0.7rem;
+    }
+    
+    .play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        opacity: 0;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    
+    .movie-card:hover .play-button {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    
+    .play-button:hover {
+        background: linear-gradient(135deg, #ff4d5a 0%, #8e2de2 100%);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .related-grid {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .related-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+        
+        .movie-card-title {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .related-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        }
+    }

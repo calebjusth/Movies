@@ -1,0 +1,296 @@
+{% extends "./base.html" %}
+
+{% block content %}
+<style>
+    /* TV Show Page Styles */
+    .tv-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        color: #fff;
+    }
+    
+    .episode-player {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+        background: #000;
+        border-radius: 8px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        margin-bottom: 2rem;
+    }
+    
+    .episode-player iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    .show-details {
+        margin-bottom: 3rem;
+    }
+    
+    .show-details h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #fff;
+    }
+    
+    .show-details p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #ccc;
+        max-width: 800px;
+    }
+    
+    .season-selector {
+        margin-bottom: 1.5rem;
+    }
+    
+    .season-selector h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    #season-select {
+        background-color: #222;
+        color: #fff;
+        border: 1px solid #444;
+        padding: 0.8rem 1rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        width: 200px;
+        cursor: pointer;
+    }
+    
+    .episodes-list {
+        margin-bottom: 3rem;
+    }
+    
+    .season {
+        display: none;
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .season.active {
+        display: block;
+    }
+    
+    .season h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e50914;
+    }
+    
+    .episodes {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    
+    .episode {
+        background-color: #222;
+        border-radius: 6px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .episode:hover {
+        background-color: #2a2a2a;
+        transform: translateY(-3px);
+    }
+    
+    .episode a {
+        color: #fff;
+        text-decoration: none;
+        display: block;
+        font-size: 1rem;
+    }
+    
+    .episode a:hover {
+        color: #e50914;
+    }
+    
+    .related-shows {
+        margin-top: 3rem;
+    }
+    
+    .related-shows h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-left: 1rem;
+    }
+    
+    .related-shows h2::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 70%;
+        background-color: #e50914;
+    }
+    
+    .similar-shows-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .similar-show {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .similar-show:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .similar-show img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .similar-show-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        padding: 1rem;
+    }
+    
+    .similar-show-title {
+        color: #fff;
+        font-size: 1rem;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .show-details h1 {
+            font-size: 2rem;
+        }
+        
+        .episodes {
+            grid-template-columns: 1fr;
+        }
+        
+        .similar-shows-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+    }
+</style>
+
+<div class="tv-container">
+    <!-- Episode Player -->
+    {% if selected_episode %}
+    <div class="episode-player">
+        <iframe src="https://vidsrc.to/embed/tv/{{ tmdb_id }}/{{ selected_season }}/{{ selected_episode }}" frameborder="0" allowfullscreen></iframe>
+    </div>
+    {% else %}
+    <div class="episode-player">
+        <iframe src="https://vidsrc.to/embed/tv/{{ tmdb_id }}" frameborder="0" allowfullscreen></iframe>
+    </div>
+    {% endif %}
+    
+    <!-- Show Details -->
+    <div class="show-details">
+        <h1>{{ content.name }}</h1>
+        <p>{{ content.overview }}</p>
+    </div>
+    
+    <!-- Season Selector -->
+    <div class="season-selector">
+        <h2>Seasons</h2>
+        <select id="season-select">
+            {% for season in seasons %}
+            <option value="{{ season.season_number }}" {% if season.season_number == selected_season|default:1 %}selected{% endif %}>
+                Season {{ season.season_number }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <!-- Episodes List -->
+    <div class="episodes-list">
+        {% for season in seasons %}
+        <div class="season" id="season-{{ season.season_number }}" 
+             style="display: {% if season.season_number == selected_season|default:1 %}block{% else %}none{% endif %}">
+            <h3>Season {{ season.season_number }}</h3>
+            <div class="episodes">
+                {% for episode in season.episodes %}
+                <div class="episode">
+                    <a href="{% url 'watch_tv' tmdb_id=tmdb_id %}?season={{ season.season_number }}&episode={{ episode.episode_number }}"
+                       class="{% if episode.episode_number == selected_episode %}active-episode{% endif %}">
+                        <strong>Episode {{ episode.episode_number }}:</strong> {{ episode.name }}
+                        <span class="episode-date">{{ episode.air_date|date:"M d, Y" }}</span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Similar Shows -->
+    <div class="related-shows">
+        <h2>Similar Shows</h2>
+        <div class="similar-shows-grid">
+            {% for show in related %}
+            <a href="{% url 'watch_tv' tmdb_id=show.id %}" class="similar-show">
+                <img src="https://image.tmdb.org/t/p/w300{{ show.poster_path }}" alt="{{ show.name }}">
+                <div class="similar-show-overlay">
+                    <h3 class="similar-show-title">{{ show.name }}</h3>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Season selector functionality
+    const seasonSelect = document.getElementById('season-select');
+    seasonSelect.addEventListener('change', function() {
+        const seasonNumber = this.value;
+        // Hide all seasons
+        document.querySelectorAll('.season').forEach(season => {
+            season.style.display = 'none';
+        });
+        // Show selected season
+        document.getElementById(`season-${seasonNumber}`).style.display = 'block';
+        
+        // Update URL without reloading (optional)
+        const url = new URL(window.location.href);
+        url.searchParams.set('season', seasonNumber);
+        window.history.pushState({}, '', url);
+    });
+    
+    // Highlight the active episode
+    const activeEpisode = document.querySelector('.active-episode');
+    if (activeEpisode) {
+        activeEpisode.style.color = '#e50914';
+        activeEpisode.style.fontWeight = 'bold';
+    }
+});
+</script>
+{% endblock %}

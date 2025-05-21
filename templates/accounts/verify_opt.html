@@ -1,0 +1,292 @@
+{% extends '../movies/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="{% static 'images/logo.png' %}" alt="JoshWatch Logo" class="auth-logo">
+            <h2 class="auth-title">Verify Your Email</h2>
+            <p class="auth-subtitle">We've sent a 6-digit code to your email</p>
+        </div>
+
+        {% if messages %}
+        <div class="auth-messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_otp">Verification Code</label>
+                <div class="otp-container">
+                    <div class="input-with-icon">
+                        <i class="fas fa-shield-alt"></i>
+                        <input type="text" name="otp" required id="id_otp" 
+                               placeholder="Enter 6-digit code" maxlength="6" pattern="\d{6}"
+                               title="Please enter exactly 6 digits">
+                    </div>
+                    <div class="otp-timer" id="otp-timer">
+                        Code expires in: <span id="countdown">05:00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="auth-button">
+                Verify Account <i class="fas fa-check-circle"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Didn't receive a code? <a href="{% url 'resend_otp' %}" class="auth-link">Resend OTP</a></p>
+            <p class="auth-note">Check your spam folder if you don't see the email</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Base Styles (consistent with other auth pages) */
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+        padding: 20px;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 450px;
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: #e50914; /* Red brand color */
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .auth-logo {
+        height: 50px;
+        margin-bottom: 20px;
+    }
+
+    .auth-title {
+        color: #333;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+        color: #666;
+        font-size: 15px;
+        margin: 0;
+    }
+
+    /* Form Styles */
+    .auth-form {
+        margin-top: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .otp-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .input-with-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-with-icon i {
+        position: absolute;
+        left: 15px;
+        color: #999;
+    }
+
+    .input-with-icon input {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 18px;
+        letter-spacing: 2px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .input-with-icon input:focus {
+        border-color: #e50914;
+        box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2);
+        outline: none;
+    }
+
+    /* OTP Timer */
+    .otp-timer {
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .otp-timer span {
+        font-weight: 600;
+        color: #e50914;
+    }
+
+    /* Button Styles */
+    .auth-button {
+        width: 100%;
+        padding: 14px;
+        background-color: #e50914;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .auth-button:hover {
+        background-color: #c40812;
+        transform: translateY(-2px);
+    }
+
+    .auth-button:active {
+        transform: translateY(0);
+    }
+
+    /* Footer Links */
+    .auth-footer {
+        text-align: center;
+        margin-top: 25px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .auth-link {
+        color: #e50914;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .auth-link:hover {
+        text-decoration: underline;
+    }
+
+    .auth-note {
+        font-size: 13px;
+        margin-top: 10px;
+        color: #888;
+    }
+
+    /* Messages/Alerts */
+    .alert {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        background-color: #fdecea;
+        color: #c62828;
+        border-left: 4px solid #c62828;
+    }
+
+    .alert-success {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border-left: 4px solid #2e7d32;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 576px) {
+        .auth-card {
+            padding: 30px 20px;
+        }
+        
+        .auth-title {
+            font-size: 24px;
+        }
+        
+        .input-with-icon input {
+            font-size: 16px;
+            padding: 12px 15px 12px 40px;
+        }
+        
+        .auth-button {
+            padding: 12px;
+        }
+    }
+</style>
+
+<script>
+    // Countdown timer for OTP expiration (5 minutes)
+    function startCountdown() {
+        let minutes = 4;
+        let seconds = 59;
+        const countdownElement = document.getElementById('countdown');
+        
+        const timer = setInterval(function() {
+            countdownElement.textContent = 
+                (minutes < 10 ? '0' + minutes : minutes) + ':' + 
+                (seconds < 10 ? '0' + seconds : seconds);
+            
+            if (seconds === 0) {
+                if (minutes === 0) {
+                    clearInterval(timer);
+                    countdownElement.textContent = '00:00';
+                    countdownElement.style.color = '#c62828';
+                    return;
+                }
+                minutes--;
+                seconds = 59;
+            } else {
+                seconds--;
+            }
+        }, 1000);
+    }
+    
+    // Start the countdown when page loads
+    document.addEventListener('DOMContentLoaded', startCountdown);
+</script>
+{% endblock %}

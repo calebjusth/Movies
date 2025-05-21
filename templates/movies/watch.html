@@ -1,0 +1,123 @@
+{% extends "./base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/video.css' %}">
+
+<div class="player-container">
+    <!-- Loading State -->
+    <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Video Player -->
+    <div class="video-wrapper">
+        <iframe 
+            id="moviePlayer"
+            src="https://vidsrc.to/embed/movie/{{ tmdb_id }}" 
+            allowfullscreen
+            onload="document.getElementById('loadingState').style.display = 'none';"
+            onerror="document.getElementById('loadingState').innerHTML = '<p>Error loading video. Please try again.</p>';">
+        </iframe>
+        
+        
+    </div>
+</div>
+
+<div class="movie-info">
+    <div class="movie-header">
+        <h1 class="movie-title">{{ content.title }}</h1>
+        <div class="movie-meta">
+            <span><i class="fas fa-star"></i> {{content.vote_average}}</span>
+            <span><i class="fas fa-calendar-alt"></i> {{ content.release_date }}</span>
+            <span><i class="fas fa-clock"></i> {{ content.runtime }} min</span>
+            <span><i class="fas fa-tag"></i> {% for genre in content.genres %}
+                {{ content.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}</span>
+        </div>
+    </div>
+    
+    <p class="movie-description">
+        {{ content.overview }}
+    </p>
+    
+    <div class="action-buttons">
+        <button class="action-btn secondary-btn">
+            <i class="fas fa-share-alt"></i> Share
+        </button>
+    </div>
+</div>
+
+
+<div class="related-section">
+    <h3 class="section-title">More Like This</h3>
+    <div class="related-grid">
+        {% for rel in related %}
+        <div class="movie-card">
+            <img src="https://image.tmdb.org/t/p/w300{{ rel.poster_path }}" alt="{{ rel.title }}" loading="lazy">
+            
+            <div class="movie-card-overlay">
+                <h4 class="movie-card-title">{{ rel.title }}</h4>
+                <div class="movie-card-meta">
+                    <span><i class="fas fa-star"></i> {{ rel.vote_average }}</span>
+                    <span><i class="fas fa-calendar-alt"></i> {{ rel.release_date|slice:":4" }}</span>
+                </div>
+            </div>
+            
+            <a href="{% url 'watch_movie' rel.id %}" class="play-button" title="Play {{ rel.title }}">
+                <i class="fas fa-play"></i>
+            </a>
+        </div>
+      {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Basic player controls functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const player = document.getElementById('moviePlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        let isPlaying = true;
+        
+        // Toggle play/pause
+        if (playPauseBtn) {
+            playPauseBtn.addEventListener('click', function() {
+                if (isPlaying) {
+                    player.contentWindow.postMessage('pause', '*');
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                } else {
+                    player.contentWindow.postMessage('play', '*');
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                }
+                isPlaying = !isPlaying;
+            });
+        }
+        
+        // Fullscreen button
+        const fullscreenBtn = document.querySelector('.fa-expand')?.closest('.control-button');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', function() {
+                if (player.requestFullscreen) {
+                    player.requestFullscreen();
+                } else if (player.webkitRequestFullscreen) {
+                    player.webkitRequestFullscreen();
+                } else if (player.msRequestFullscreen) {
+                    player.msRequestFullscreen();
+                }
+            });
+        }
+        
+        // Simulate progress bar movement
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            setInterval(() => {
+                if (isPlaying) {
+                    const currentWidth = parseInt(progressBar.style.width) || 0;
+                    const newWidth = (currentWidth + 1) % 100;
+                    progressBar.style.width = newWidth + '%';
+                }
+            }, 1000);
+        }
+    });
+</script>
+
+{% endblock content %}
